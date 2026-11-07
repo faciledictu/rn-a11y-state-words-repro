@@ -10,7 +10,7 @@ replace the element's name (React Native 0.88.0, new architecture).
 `accessibilityLabel` if there is one. With no label, the content description
 is only these words, and TalkBack reads it instead of the text of the view or
 its children. iOS keeps the name and puts the same words in the accessibility
-value.
+value. Issue: react/react-native#59856.
 
 One screen, [`ReproducerApp/App.tsx`](ReproducerApp/App.tsx). In each section
 the first element has the prop and the second, the control, differs only by
