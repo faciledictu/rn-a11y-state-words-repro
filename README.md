@@ -10,7 +10,7 @@ replace the element's name (React Native 0.88.0, new architecture).
 `accessibilityLabel` if there is one. With no label, the content description
 is only these words, and TalkBack reads it instead of the text of the view or
 its children. iOS keeps the name and puts the same words in the accessibility
-value. Issue: react/react-native#59856.
+value. Issue: react/react-native#59856, fix: react/react-native#59859.
 
 One screen, [`ReproducerApp/App.tsx`](ReproducerApp/App.tsx). In each section
 the first element has the prop and the second, the control, differs only by
@@ -30,8 +30,8 @@ Read the nodes with `adb shell uiautomator dump` or with A11yProbe
 ([`A11yProbe.kt`](ReproducerApp/android/app/src/androidTest/java/com/reproducerapp/A11yProbe.kt),
 `Instrumentation` + `UiAutomation`, no extra dependencies). It restarts the
 app, presses the `before` buttons, then prints each target's text, content
-description, `checkable`, `checked` and range. A target that starts with `^` is
-the element that holds the text after it:
+description, state description, `checkable`, `checked` and range. A target
+that starts with `^` is the element that holds the text after it:
 
 ```bash
 cd ReproducerApp/android && ./gradlew app:assembleDebugAndroidTest
@@ -60,3 +60,23 @@ with no "Volume". Only section 2 keeps the name, because it has an
 `accessibilityLabel`. The code is the same on `main`.
 
 iOS keeps the name and reads these words as the value.
+
+## With the fix
+
+The fix (react/react-native#59859, fork branch
+[`fix/android-state-description`](https://github.com/faciledictu/react-native/tree/fix/android-state-description))
+puts these words in the view's state description on Android 11 (API 30) and
+later, and leaves only the `accessibilityLabel` in the content description.
+React Native 0.88.0 built from source with the fix, A11yProbe:
+
+| # | With the prop | Control |
+| - | ------------- | ------- |
+| 1 | "Results B1", state "busy" | "Results B2" |
+| 2 | "Results L1", state "busy" | "Results L2" |
+| 3 | "Select all M1", state "mixed", not checkable | "Select all M2", checked |
+| 4 | "Rating V1", state "3 of 5" | "Rating V2" |
+| 5 | text "Saving T1", state "busy" | text "Saving T2" |
+| 6 | "Inbox A1", state "busy" | "Inbox A2" |
+| 7 | "Volume S1", state "1 of 5" to "4 of 5" | the same |
+
+Every element keeps its name, the same as its control.
